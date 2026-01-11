@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отслеживание заказа</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #faf5ff 0%, #fce7f3 50%, #dbeafe 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(to right, #9333ea, #ec4899, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 1.125rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .card h2 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card p {
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #9333ea;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(to right, #3b82f6, #9333ea);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 2rem 0;
+        }
+
+        .order-details {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .order-details h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            justify-content: center;
+        }
+
+        .order-details p {
+            color: #6b7280;
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            border: 2px solid #e5e7eb;
+            font-weight: 600;
+        }
+
+        .progress-section {
+            background: linear-gradient(135deg, #faf5ff, #fce7f3);
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-header span {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .progress-percent {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #9333ea, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-bar {
+            position: relative;
+            height: 24px;
+            background: #e5e7eb;
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #9333ea, #ec4899, #3b82f6);
+            border-radius: 1rem;
+            transition: width 1s ease-out;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(147, 51, 234, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(147, 51, 234, 0.8); }
+        }
+
+        .status-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-step {
+            text-align: center;
+            transition: all 0.5s;
+        }
+
+        .status-step.inactive {
+            opacity: 0.3;
+        }
+
+        .status-icon-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.5s;
+        }
+
+        .status-step.active .status-icon {
+            animation: pulseGlow 2s ease-in-out infinite;
+            transform: scale(1.1);
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px var(--status-color); }
+            50% { box-shadow: 0 0 40px var(--status-color); }
+        }
+
+        .check-badge {
+            position: absolute;
+            top: -4px;
+            right: calc(50% - 44px);
+            width: 32px;
+            height: 32px;
+            background: #22c55e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            border: 4px solid white;
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        .status-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-step.active .status-label {
+            color: #9333ea;
+            font-size: 1.125rem;
+        }
+
+        .status-description {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+            border: 2px solid #3b82f6;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .info-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #9333ea);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-text h3 {
+            font-size: 1.125rem;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-text p {
+            color: #1e40af;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 2px solid #e5e7eb;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .empty-icon {
+            width: 96px;
+            height: 96px;
+            background: linear-gradient(135deg, #faf5ff, #fce7f3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .toast {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 350px;
+        }
+
+        .toast.success {
+            border-left: 4px solid #22c55e;
+        }
+
+        .toast.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .toast h4 {
+            margin-bottom: 0.25rem;
+        }
+
+        .toast p {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .status-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Отслеживание заказа</h1>
+            <p>Узнайте статус вашего заказа</p>
+        </div>
+
+        <div class="card">
+            <h2>🔍 Введите номер отслеживания</h2>
+            <p>Номер отслеживания был отправлен на вашу электронную почту после оформления заказа</p>
+
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="trackingInput" 
+                    placeholder="Например: TN123456789"
+                    maxlength="20"
+                >
+                <button class="btn" id="trackBtn" onclick="trackOrder()">
+                    <span id="btnText">Отследить</span>
+                </button>
+            </div>
+
+            <div id="orderResult"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://functions.poehali.dev/68b09150-5d57-42fc-b158-67287b1281dc';
+
+        const statusConfig = {
+            pending: { 
+                label: 'Ожидание', 
+                emoji: '⏰', 
+                color: '#eab308',
+                description: 'Заказ принят и ожидает обработки'
+            },
+            processing: { 
+                label: 'Обработка', 
+                emoji: '📦', 
+                color: '#3b82f6',
+                description: 'Заказ комплектуется на складе'
+            },
+            shipped: { 
+                label: 'В пути', 
+                emoji: '🚚', 
+                color: '#9333ea',
+                description: 'Заказ передан курьерской службе'
+            },
+            delivered: { 
+                label: 'Доставлен', 
+                emoji: '✅', 
+                color: '#22c55e',
+                description: 'Заказ успешно доставлен'
+            }
+        };
+
+        function showToast(title, description, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <h4>${title}</h4>
+                ${description ? `<p>${description}</p>` : ''}
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
+        }
+
+        function getStatusProgress(status) {
+            const steps = ['pending', 'processing', 'shipped', 'delivered'];
+            return ((steps.indexOf(status) + 1) / steps.length) * 100;
+        }
+
+        function getCurrentStatusIndex(status) {
+            const steps = ['pending', 'processing', 'shipped', 'delivered'];
+            return steps.indexOf(status);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        async function trackOrder() {
+            const trackingNumber = document.getElementById('trackingInput').value.trim().toUpperCase();
+
+            if (!trackingNumber) {
+                showToast('Ошибка', 'Введите номер отслеживания', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('trackBtn');
+            const btnText = document.getElementById('btnText');
+            
+            btn.disabled = true;
+            btnText.innerHTML = '<div class="spinner"></div>';
+
+            try {
+                const response = await fetch(`${API_URL}?tracking_number=${trackingNumber}`);
+
+                if (response.ok) {
+                    const order = await response.json();
+                    displayOrder(order);
+                    showToast('Заказ найден!');
+                } else if (response.status === 404) {
+                    showToast('Заказ не найден', 'Проверьте номер отслеживания', 'error');
+                    displayEmptyState();
+                } else {
+                    showToast('Ошибка', 'Не удалось найти заказ', 'error');
+                    displayEmptyState();
+                }
+            } catch (error) {
+                showToast('Ошибка соединения', 'Проверьте подключение к интернету', 'error');
+                displayEmptyState();
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Отследить';
+            }
+        }
+
+        function displayOrder(order) {
+            const currentIndex = getCurrentStatusIndex(order.status);
+            const progress = getStatusProgress(order.status);
+
+            const statusStepsHTML = Object.entries(statusConfig).map(([key, config], index) => {
+                const isCompleted = index < currentIndex;
+                const isCurrent = order.status === key;
+                const isActive = index <= currentIndex;
+
+                return `
+                    <div class="status-step ${isActive ? 'active' : 'inactive'}">
+                        <div class="status-icon-wrapper">
+                            <div class="status-icon" style="background: ${isActive ? config.color : '#d1d5db'}; color: white; --status-color: ${config.color};">
+                                ${config.emoji}
+                            </div>
+                            ${isCompleted ? '<div class="check-badge">✓</div>' : ''}
+                        </div>
+                        <div class="status-label">${config.label}</div>
+                        <div class="status-description">${config.description}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('orderResult').innerHTML = `
+                <div class="divider"></div>
+
+                <div class="order-details">
+                    <h2>${order.customerName}</h2>
+                    <p>${order.product}</p>
+                    <span class="badge">${order.trackingNumber}</span>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <span>Прогресс доставки</span>
+                        <span class="progress-percent">${Math.round(progress)}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+
+                <div class="status-steps">
+                    ${statusStepsHTML}
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card-content">
+                        <div class="info-icon">🔔</div>
+                        <div class="info-text">
+                            <h3>Уведомления в реальном времени</h3>
+                            <p>Мы отправим вам уведомление на email при каждом изменении статуса заказа. Вы также можете вернуться на эту страницу в любое время для проверки статуса.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Дата создания</div>
+                        <div class="detail-value">${formatDate(order.createdAt)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Последнее обновление</div>
+                        <div class="detail-value">${formatDate(order.updatedAt)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function displayEmptyState() {
+            document.getElementById('orderResult').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">📦</div>
+                    <h3>Введите номер отслеживания</h3>
+                    <p>Чтобы узнать статус заказа, введите номер отслеживания выше</p>
+                </div>
+            `;
+        }
+
+        document.getElementById('trackingInput').addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        document.getElementById('trackingInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                trackOrder();
+            }
+        });
+
+        displayEmptyState();
+    </script>
+</body>
+</html>
